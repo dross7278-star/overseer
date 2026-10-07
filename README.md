@@ -76,14 +76,19 @@ stop and restart the server.
 ## Deploy a public website with Vercel and Render
 
 The website can be hosted on Vercel while the Node.js API and SQLite history
-remain on Render. Vercel provides HTTPS for the public website and proxies its
+run on Render. Vercel provides HTTPS for the public website and proxies its
 API requests to the Render service. Public deployments use read-only mode:
 visitors can view runs and traces, but cannot start runs or approve actions.
 
 1. Push this project to a GitHub repository.
-2. Create a Render Blueprint from the repository using `render.yaml`. The
-   service uses a persistent disk for its SQLite run history; pending approvals
-   are still in memory. No OpenAI key is needed for this read-only deployment.
+2. Create a Render Blueprint from the repository using `render.yaml`. It uses
+   the Free Node service without a disk. History can disappear on restarts or
+   deploys. No OpenAI key is needed for this read-only deployment.
+   For a manually created service, select the Node runtime, set the build
+   command to `npm ci --include=dev && npm run build`, and the start command to
+   `npm start`. Set `NODE_ENV=production` and `PUBLIC_READ_ONLY=true`; leave
+   `DATABASE_PATH` unset. The explicit `--include=dev` installs TypeScript and
+   type definitions needed for the build even in a production environment.
 3. Create a Vercel project from the same repository. Set the project root to
    this project directory, if needed. Set `OVERSEER_API_URL` to the Render
    service base URL (for example, `https://overseer.example.onrender.com`).
@@ -97,8 +102,9 @@ visitors can view runs and traces, but cannot start runs or approve actions.
 The Vercel site is public, and run history is therefore public as well. Do not
 store sensitive goals or data in this instance. The Render API independently
 enforces read-only mode, so visitors cannot invoke paid model runs even if
-they bypass the Vercel interface. The Render Blueprint uses a paid web-service
-plan and a 1 GB persistent disk. Set `PUBLIC_READ_ONLY=false` only if you
+they bypass the Vercel interface. The Render Blueprint uses a free web service without
+persistent storage. It may sleep when idle, and history is not durable.
+Set `PUBLIC_READ_ONLY=false` only if you
 intentionally want to restore write access; production then requires both
 `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD`.
 

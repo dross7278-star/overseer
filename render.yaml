@@ -2,18 +2,12 @@ services:
   - type: web
     name: overseer
     runtime: node
-    plan: starter
-    buildCommand: npm ci && npm run build
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_PATH
-        value: /var/data/overseer.db
       - key: PUBLIC_READ_ONLY
         value: "true"
-    disk:
-      name: overseer-data
-      mountPath: /var/data
-      sizeGB: 1
