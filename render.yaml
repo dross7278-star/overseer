@@ -9,5 +9,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "24.18.0"
       - key: PUBLIC_READ_ONLY
+        value: "true"
+      - key: VITE_PUBLIC_READ_ONLY
         value: "true"

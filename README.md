@@ -73,7 +73,42 @@ static-file server. This website is local; it has not been deployed publicly.
 The server loads `.env` automatically. After changing environment variables,
 stop and restart the server.
 
-## Deploy a public website with Vercel and Render
+## Deploy a public website with Render
+
+Render can host the entire website and API together. The included `render.yaml`
+creates a free, public, read-only Node web service: visitors can view the
+homepage, dashboard, runs, and traces, but cannot start runs or approve actions.
+No OpenAI API key is needed.
+
+1. Push the contents of this project directory to a GitHub repository.
+   Do not upload `.env`, `node_modules`, `dist`, or SQLite databases.
+2. Sign in to [Render](https://dashboard.render.com/), select **New > Blueprint**,
+   and connect that repository. If the project is in a subdirectory, provide
+   the path to its `render.yaml` and set the service's **Root Directory** to
+   that project directory.
+3. Review the Blueprint and deploy it. It sets Node.js `24.18.0`,
+   `NODE_ENV=production`, `PUBLIC_READ_ONLY=true`, and
+   `VITE_PUBLIC_READ_ONLY=true`.
+4. Once Render reports the service as live, open its assigned
+   `https://<service-name>.onrender.com` URL. Verify the homepage,
+   `/dashboard`, and `/api/health` (which should report `"status":"ok"`).
+   The dashboard should show read-only controls.
+
+For a manually created **Web Service**, select the **Node** runtime and
+**Free** instance type. Use `npm ci --include=dev && npm run build` as the
+build command, `npm start` as the start command, and `/api/health` as the
+health check path. Add all four environment variables listed above before
+the initial build, and leave `DATABASE_PATH` unset. TypeScript and Vite are
+build dependencies, so the explicit `--include=dev` is necessary.
+
+Render supplies HTTPS. To use a custom domain, add it in the Render service's
+settings and follow its DNS instructions. Free services may sleep when idle,
+so the first request can be slow. Their SQLite history is not durable across
+restarts or deployments. The existing local database is not uploaded, so a new
+deployment starts with empty history. History on this instance is public;
+do not store sensitive goals or data.
+
+## Optional: Vercel frontend with Render API
 
 The website can be hosted on Vercel while the Node.js API and SQLite history
 run on Render. Vercel provides HTTPS for the public website and proxies its
@@ -179,6 +214,6 @@ client/
 index.html           Vite HTML entry
 vite.config.ts       Frontend build and development API proxy
 tsconfig.client.json Frontend TypeScript configuration
-render.yaml          Render API service and persistent disk
+render.yaml          Render website/API service (free, read-only, no disk)
 vercel.json          Vercel static site, API function, and dashboard route
 ```
