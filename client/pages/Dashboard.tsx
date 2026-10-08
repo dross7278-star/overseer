@@ -1,10 +1,9 @@
 import { useRef, useState, type FormEvent } from "react";
 import type { ApprovalDecision, PendingApproval } from "../../src/types";
 import { api, errorMessage } from "../api";
+import { publicReadOnly } from "../config";
 import { EmptyState, Footer, Header } from "../components/Layout";
 import { useWorkspace } from "../hooks/useWorkspace";
-
-const publicReadOnly = import.meta.env.VITE_PUBLIC_READ_ONLY === "true";
 
 export function Dashboard() {
   const [goal, setGoal] = useState("");
@@ -63,8 +62,8 @@ export function Dashboard() {
       <a className="skip-link" href="#main">Skip to content</a>
       <Header dashboard>
         <span className="connection" role="status">
-          <span className={`connection-dot ${canAct ? "online" : ""}`} aria-hidden="true" />
-          {workspace.connection === "connecting" ? "Connecting..." : canAct ? "Server connected" : "Server unavailable"}
+          <span className={`connection-dot ${workspace.connection === "connected" ? "online" : ""}`} aria-hidden="true" />
+          {workspace.connection === "connecting" ? "Connecting..." : workspace.connection === "connected" ? "Server connected" : "Server unavailable"}
         </span>
       </Header>
       <main className="wrap dashboard" id="main">
@@ -88,7 +87,7 @@ export function Dashboard() {
             </section>
             <section className="panel" aria-labelledby="runs-title">
               <div className="panel-head"><h2 id="runs-title">Recent runs</h2><span className="muted-count">{workspace.tasks.length} {workspace.tasks.length === 1 ? "run" : "runs"}</span></div>
-              {!workspace.tasks.length ? <EmptyState>{workspace.connection === "connecting" ? "Loading run history..." : "No runs yet. Start a task to see agent activity here."}</EmptyState> :
+              {!workspace.tasks.length ? <EmptyState>{workspace.connection === "connecting" ? "Loading run history..." : publicReadOnly ? "No runs have been recorded in this public read-only deployment." : "No runs yet. Start a task to see agent activity here."}</EmptyState> :
                 workspace.tasks.map(task => (
                   <button key={task.taskId} type="button" className={`task ${selectedTask === task.taskId ? "selected" : ""}`}
                     aria-pressed={selectedTask === task.taskId} onClick={() => setSelectedTask(task.taskId)}>

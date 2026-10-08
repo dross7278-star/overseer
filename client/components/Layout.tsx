@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { publicReadOnly } from "../config";
 
 export function Header({ dashboard, children }: { dashboard?: boolean; children?: ReactNode }) {
   return (
@@ -25,7 +26,7 @@ export function Footer() {
   return (
     <footer className="wrap site-footer">
       <span>Overseer &middot; AI agents. Human judgment.</span>
-      <span>Local development preview &middot; <a href="https://github.com/dross7278-star/overseer">GitHub</a></span>
+      <span>{publicReadOnly ? "Public read-only preview" : "Self-hosted development prototype"} &middot; <a href="https://github.com/dross7278-star/overseer/tree/render-live">GitHub</a></span>
     </footer>
   );
 }
